@@ -30,39 +30,30 @@ def analyze():
         print("Exception:")
         print(e)
 
-    with open('signals/paused.exc', 'r')  as previous_status:
-        previous_status.read()
-        print(previous_status)
-
     ma_sell = analysis.moving_averages['SELL']
-    if ma_sell > THRESHOLD and ma_sell < 13:
-        status = 'DOWNTREND'
+    if ma_sell >= THRESHOLD:
+        paused = True
         print(
-            f'pausebotmod: Market is in a DOWNTREND, bot paused from buying {ma_sell}/{THRESHOLD} Waiting {TIME_TO_WAIT} minutes for next market checkup')
-    if ma_sell >= 13:
+            f'pausebotmod: Market not looking too good, bot paused from buying {ma_sell}/{THRESHOLD} Waiting {TIME_TO_WAIT} minutes for next market checkup')
+    else:
         print(
-            f'pausebotmod: Market is BEARISH, bot paused from buying {ma_sell}/{THRESHOLD} Waiting {TIME_TO_WAIT} minutes for next market checkup')
-        status = 'BEARISH'
-    if ma_sell <= THRESHOLD and ma_sell >= 5:
-        print(
-            f'pausebotmod: Market is in an UPTREND, bot is running {ma_sell}/{THRESHOLD} Waiting {TIME_TO_WAIT} minutes for next market checkup ')
-        status = 'UPTREND'
-    if ma_sell <= 4:
-        print(
-            f'pausebotmod: Market is BULLISH, bot is running {ma_sell}/{THRESHOLD} Waiting {TIME_TO_WAIT} minutes for next market checkup ')
-        status = 'BULLISH'
+            f'pausebotmod: Market looks ok, bot is running {ma_sell}/{THRESHOLD} Waiting {TIME_TO_WAIT} minutes for next market checkup ')
+        paused = False
 
-    return status
+    return paused
 
 
 # if __name__ == '__main__':
 def do_work():
     while True:
         # print(f'pausebotmod: Fetching market state')
-        status = analyze()
-        with open('signals/paused.exc', 'w') as f:
-            f.write(status)
+        paused = analyze()
+        if paused:
+            with open('signals/paused.exc', 'a+') as f:
+                f.write('yes')
+        else:
+            if os.path.isfile("signals/paused.exc"):
+                os.remove('signals/paused.exc')
 
-        if status == 'DOWNTREND' or status == 'BEARISH':
-            # print(f'pausebotmod: Waiting {TIME_TO_WAIT} minutes for next market checkup')    
-            time.sleep((TIME_TO_WAIT * 60))
+        # print(f'pausebotmod: Waiting {TIME_TO_WAIT} minutes for next market checkup')
+        time.sleep((TIME_TO_WAIT * 60))

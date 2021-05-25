@@ -507,7 +507,7 @@ if __name__ == '__main__':
     TRADING_FEE = parsed_config['trading_options']['TRADING_FEE']
     SIGNALLING_MODULES = parsed_config['trading_options']['SIGNALLING_MODULES']
     if DEBUG_SETTING or args.debug:
-        DEBUG = True
+        DEBUG = False
 
     # Load creds for correct environment
     access_key, secret_key = load_correct_creds(parsed_creds)
@@ -558,8 +558,9 @@ if __name__ == '__main__':
 
     if not TEST_MODE:
         if not args.notimeout: # if notimeout skip this (fast for dev tests)
-            print('WARNING: You are using the Mainnet and live funds. Waiting 30 seconds as a security measure')
-            time.sleep(30)
+            print(f'{txcolors.WARNING}WARNING: You are using the Mainnet and live funds. Waiting 30 seconds as a security measure')
+        else:
+            print('Using Test API')
 
     signals = glob.glob("signals/*.exs")
     for filename in signals:
