@@ -34,6 +34,9 @@ init()
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 
+# Plays Cash register sound for profit
+from playsound import playsound
+
 # used for dates
 from datetime import date, datetime, timedelta
 import time
@@ -380,7 +383,8 @@ def sell_coins():
         # check that the price is below the stop loss or above take profit (if trailing stop loss not used) and sell if this is the case
         if LastPrice < SL or LastPrice > TP and not USE_TRAILING_STOP_LOSS:
             print(f"{txcolors.SELL_PROFIT if PriceChange >= 0. else txcolors.SELL_LOSS}TP or SL reached, selling {coins_bought[coin]['volume']} {coin} - {BuyPrice} - {LastPrice} : {PriceChange-(TRADING_FEE*2):.2f}% Est:${(QUANTITY*(PriceChange-(TRADING_FEE*2)))/100:.2f}{txcolors.DEFAULT}")
-
+        if LastPrice > TP and not USE_TRAILING_STOP_LOSS:
+            playsound('D:\Programs\Binance-volatility-trading-bot\profit.wav')
             # try to create a real order
             try:
 
